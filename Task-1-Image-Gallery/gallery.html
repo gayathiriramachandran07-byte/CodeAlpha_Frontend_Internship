@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Responsive Image Gallery</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+  }
+
+  h1 {
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  /* FILTER BUTTONS */
+  .filters {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .filters button {
+    padding: 8px 16px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    background: #555;
+    color: white;
+    transition: 0.3s;
+  }
+
+  .filters button:hover {
+    background: #000;
+  }
+
+  /* GALLERY GRID */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .gallery img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.4s, box-shadow 0.4s;
+  }
+
+  .gallery img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  }
+
+  /* LIGHTBOX */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .lightbox img {
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 10px;
+  }
+
+  .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+  }
+
+  .nav {
+    position: absolute;
+    top: 50%;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px;
+  }
+
+  .prev { left: 20px; }
+  .next { right: 20px; }
+
+  @media (max-width: 600px) {
+    .gallery img {
+      height: 150px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Image Gallery</h1>
+
+<!-- FILTERS -->
+<div class="filters">
+  <button onclick="filterImages('all')">All</button>
+  <button onclick="filterImages('nature')">Nature</button>
+  <button onclick="filterImages('city')">City</button>
+  <button onclick="filterImages('animals')">Animals</button>
+</div>
+
+<!-- GALLERY -->
+<div class="gallery">
+  <img src="https://picsum.photos/id/1018/600/400" class="nature" onclick="openLightbox(0)">
+  <img src="https://picsum.photos/id/1015/600/400" class="nature" onclick="openLightbox(1)">
+  <img src="https://picsum.photos/id/1011/600/400" class="animals" onclick="openLightbox(2)">
+  <img src="https://picsum.photos/id/1012/600/400" class="city" onclick="openLightbox(3)">
+  <img src="https://picsum.photos/id/1016/600/400" class="city" onclick="openLightbox(4)">
+  <img src="https://picsum.photos/id/1025/600/400" class="animals" onclick="openLightbox(5)">
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <span class="close" onclick="closeLightbox()">×</span>
+  <span class="nav prev" onclick="changeImage(-1)">❮</span>
+  <img id="lightbox-img">
+  <span class="nav next" onclick="changeImage(1)">❯</span>
+</div>
+
+<script>
+  const images = document.querySelectorAll(".gallery img");
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+  let currentIndex = 0;
+
+  function openLightbox(index) {
+    currentIndex = index;
+    lightbox.style.display = "flex";
+    lightboxImg.src = images[currentIndex].src;
+  }
+
+  function closeLightbox() {
+    lightbox.style.display = "none";
+  }
+
+  function changeImage(step) {
+    currentIndex += step;
+    if (currentIndex < 0) currentIndex = images.length - 1;
+    if (currentIndex >= images.length) currentIndex = 0;
+    lightboxImg.src = images[currentIndex].src;
+  }
+
+  function filterImages(category) {
+    images.forEach(img => {
+      if (category === "all" || img.classList.contains(category)) {
+        img.style.display = "block";
+      } else {
+        img.style.display = "none";
+      }
+    });
+  }
+
+  // Keyboard navigation
+  document.addEventListener("keydown", (e) => {
+    if (lightbox.style.display === "flex") {
+      if (e.key === "ArrowRight") changeImage(1);
+      if (e.key === "ArrowLeft") changeImage(-1);
+      if (e.key === "Escape") closeLightbox();
+    }
+  });
+</script>
+
+</body>
+</html>

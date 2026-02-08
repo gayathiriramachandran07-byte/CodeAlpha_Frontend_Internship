@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Animated Music Player</title>
+
+<style>
+/* 🌌 SKY BACKGROUND */
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(#0f2027, #203a43, #2c5364);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ☀️ SUN */
+.sun {
+  position: absolute;
+  top: 10%;
+  left: -100px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, #ffd700, #ff9800);
+  border-radius: 50%;
+  animation: moveSun 30s linear infinite;
+}
+
+/* 🌙 MOON */
+.moon {
+  position: absolute;
+  top: 20%;
+  right: -80px;
+  width: 90px;
+  height: 90px;
+  background: #f5f3ce;
+  border-radius: 50%;
+  box-shadow: -15px 0 0 0 #0f2027;
+  animation: moveMoon 40s linear infinite;
+}
+
+/* ⭐ STARS */
+.star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle 2s infinite alternate;
+}
+
+@keyframes moveSun {
+  from { left: -150px; top: 60%; }
+  to { left: 110%; top: 10%; }
+}
+
+@keyframes moveMoon {
+  from { right: -150px; top: 10%; }
+  to { right: 110%; top: 60%; }
+}
+
+@keyframes twinkle {
+  from { opacity: 0.2; }
+  to { opacity: 1; }
+}
+
+/* 🎧 MUSIC PLAYER */
+.music-app {
+  position: relative;
+  z-index: 10;
+  width: 340px;
+  padding: 20px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.15);
+  color: white;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+h2 {
+  margin: 5px 0;
+}
+
+p {
+  font-size: 14px;
+  color: #ddd;
+}
+
+.controls button {
+  background: none;
+  border: none;
+  font-size: 26px;
+  margin: 10px;
+  cursor: pointer;
+  color: white;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #aaa;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.progress {
+  height: 100%;
+  width: 0%;
+  background: #1db954;
+  border-radius: 5px;
+}
+
+.time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.volume {
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND ELEMENTS -->
+<div class="sun"></div>
+<div class="moon"></div>
+
+<!-- STARS -->
+<script>
+  for (let i = 0; i < 40; i++) {
+    const star = document.createElement("div");
+    star.className = "star";
+    star.style.top = Math.random() * 100 + "%";
+    star.style.left = Math.random() * 100 + "%";
+    star.style.animationDelay = Math.random() * 2 + "s";
+    document.body.appendChild(star);
+  }
+</script>
+
+<!-- MUSIC PLAYER -->
+<div class="music-app">
+  <h2 id="title">Sunny Day</h2>
+  <p id="artist">Bensound</p>
+
+  <audio id="audio"
+    src="https://www.bensound.com/bensound-music/bensound-sunny.mp3">
+  </audio>
+
+  <div class="progress-bar" onclick="seek(event)">
+    <div class="progress" id="progress"></div>
+  </div>
+
+  <div class="time">
+    <span id="current">0:00</span>
+    <span id="total">0:00</span>
+  </div>
+
+  <div class="controls">
+    <button onclick="prev()">⏮</button>
+    <button onclick="playPause()">▶️</button>
+    <button onclick="next()">⏭</button>
+  </div>
+
+  <div class="volume">
+    🔊 <input type="range" min="0" max="1" step="0.01"
+      onchange="audio.volume=this.value">
+  </div>
+</div>
+
+<script>
+const songs = [
+  { title: "Sunny Day", artist: "Bensound", src: "https://www.bensound.com/bensound-music/bensound-sunny.mp3" },
+  { title: "Energy", artist: "Bensound", src: "https://www.bensound.com/bensound-music/bensound-energy.mp3" }
+];
+
+let index = 0;
+let playing = false;
+
+const audio = document.getElementById("audio");
+const title = document.getElementById("title");
+const artist = document.getElementById("artist");
+const progress = document.getElementById("progress");
+const current = document.getElementById("current");
+const total = document.getElementById("total");
+
+function playPause() {
+  if (playing) {
+    audio.pause();
+    playing = false;
+  } else {
+    audio.play();
+    playing = true;
+  }
+}
+
+function next() {
+  index = (index + 1) % songs.length;
+  loadSong();
+}
+
+function prev() {
+  index = (index - 1 + songs.length) % songs.length;
+  loadSong();
+}
+
+function loadSong() {
+  title.textContent = songs[index].title;
+  artist.textContent = songs[index].artist;
+  audio.src = songs[index].src;
+  audio.play();
+  playing = true;
+}
+
+audio.addEventListener("timeupdate", () => {
+  progress.style.width = (audio.currentTime / audio.duration) * 100 + "%";
+  current.textContent = format(audio.currentTime);
+  total.textContent = format(audio.duration);
+});
+
+audio.addEventListener("ended", next);
+
+function seek(e) {
+  const width = e.currentTarget.clientWidth;
+  audio.currentTime = (e.offsetX / width) * audio.duration;
+}
+
+function format(t) {
+  if (isNaN(t)) return "0:00";
+  return Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+}
+</script>
+
+</body>
+</html>
